@@ -124,14 +124,12 @@ def autoMode(fname, ftype):
     if begin == "n" or begin == "N":
         return
 
-    while True:
-        if ftype != ".mp4":
-            print("##### Creating an .mp4 [ctrl + c to quit]")
-            makemp4(fname, ftype)
-            ftype = ".mp4"
-        elif ftype == ".mp4":
-            files_to_cleanup.append(f'{fname}{ftype}')
-            break
+    if ftype != ".mp4":
+        print("##### Creating an .mp4 [ctrl + c to quit]")
+        makemp4(fname, ftype)
+        ftype = ".mp4"
+
+    files_to_cleanup.append(f'{fname}{ftype}')
 
     print("##### Cutting [ctrl + c to quit]")
     print(f'##### File {fname}{ftype} selected')
