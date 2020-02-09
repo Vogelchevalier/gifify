@@ -12,12 +12,12 @@ Python script for creating .gifs from video files using ffmpeg
 - Run the .py file or run `gifify --file <path>` if you did the optional steps
 
 ## Flags
-- `--file <path>` Select the file to operate on
-- `--mode <auto|mp4|cut|crop|resize|gif>` Select the mode. Default `auto`
+- `--file --f <path>` Select the file to operate on
+- `--mode --m <auto|mp4|cut|crop|resize|gif>` Select the mode. Default `auto`
 
 ###### Optional flags for the non-auto modes
-- `--timestamp <hh:mm:ss.ds>` The starting timestamp for mode `cut` in ffmpeg format
-- `--duration <hh:mm:ss.ds>` The duration for mode `cut` in ffmpeg format
-- `--startx <number>` The starting x coordinate for mode `crop` in pixels
-- `--starty <number>` The starting y coordinate for mode `crop` in pixels
-- `--resolution <number>` The length of the side of the square for modes `crop` and `resize`. Alias `--res`. Support for non-square rectangles planned.
+- `--timestamp --time --t <hh:mm:ss.ds>` The starting timestamp for mode `cut` in ffmpeg format
+- `--duration --dur --d <hh:mm:ss.ds>` The duration for mode `cut` in ffmpeg format
+- `--startx --x <number>` The starting x coordinate for mode `crop` in pixels
+- `--starty --y <number>` The starting y coordinate for mode `crop` in pixels
+- `--resolution --res --r <number>` The length of the side of the square for modes `crop` and `resize`. Support for non-square rectangles planned.
