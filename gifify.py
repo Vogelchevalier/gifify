@@ -154,8 +154,8 @@ def autoMode(fname, ftype):
     print("##### Resizing [ctrl + c to quit]")
     print(f'##### File {fname}{ftype} selected')
 
-    resized_reso = input("""##### Length of the resized side of the square in pixels.
-##### Leave empty (press enter) for no resizing: """)
+    print("##### Length of the resized side of the square in pixels.")
+    resized_reso = input("##### Leave empty (press enter) for no resizing: ")
 
     if resized_reso:
         resizeVideo(fname, ftype, resized_reso)
