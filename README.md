@@ -7,6 +7,8 @@ Python script for creating .gifs from video files using ffmpeg
 
 ## How to use
 - Download
+- (Optional) `chmod +x gifify.py`
+- (Optional) Move the script to a location that is in your PATH variable
 - Run the .py file
 
 ## Flags
