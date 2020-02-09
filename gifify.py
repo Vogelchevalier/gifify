@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import argparse
 import os
 import subprocess
@@ -61,6 +63,7 @@ def makemp4(fname, ftype):
             ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-an', f'{fname}.mp4']
             commandLine(ffmpeg)
             print("##### .mp4 ready")
+            return
 
     if ftype != ".mp4":
         ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-c', 'copy', '-an', f'{fname}.mp4']
