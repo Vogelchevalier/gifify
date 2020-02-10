@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
-# just testing signing my commit
+# TODO: non-square rectangle support
+#   better gif quality
+#   https://github.com/ImageOptim/gifski
+#   https://ffmpeg.org/ffmpeg-filters.html#paletteuse
 
 import argparse
 import os
@@ -186,11 +189,7 @@ def autoMode(fname, ftype):
 
     if cleanup == "y" or cleanup == "Y":
         for i in range(len(files_to_cleanup)):
-            if platform.system == "Windows":
-                rm = ['del', '/f', files_to_cleanup[i]]
-            else:
-                rm = ['rm', files_to_cleanup[i]]
-            subprocess.Popen(rm).wait()
+            os.remove(files_to_cleanup[i])
             print(f'##### Removed {files_to_cleanup[i]}')
     else:
         print("##### No files removed")
