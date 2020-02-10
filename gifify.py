@@ -3,6 +3,7 @@
 import argparse
 import os
 import subprocess
+import platform
 
 parser = argparse.ArgumentParser(description = "A script for making .gif avatars from video files")
 
@@ -13,7 +14,7 @@ parser.add_argument("--file", "--f",
 # Mode
 parser.add_argument("--mode", "--m",
         choices = ["auto", "mp4", "cut", "crop", "resize", "gif"],
-        default = "auto", type = str, help = "Choose the mode. auto, mp4, cut, crop, resize, gif.")
+        default = "auto", type = str, help = "Choose the mode.")
 
 # Cut timestamp and duration
 parser.add_argument("--timestamp", "--time", "--t",
@@ -177,7 +178,10 @@ def autoMode(fname, ftype):
 
     if cleanup == "y" or cleanup == "Y":
         for i in range(len(files_to_cleanup)):
-            rm = ['rm', files_to_cleanup[i]]
+            if platform.system == "Windows":
+                rm = ['del', '/f', files_to_cleanup[i]]
+            else:
+                rm = ['rm', files_to_cleanup[i]]
             subprocess.Popen(rm).wait()
             print(f'##### Removed {files_to_cleanup[i]}')
     else:
