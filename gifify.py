@@ -5,31 +5,30 @@ import os
 import subprocess
 import platform
 
-parser = argparse.ArgumentParser(description = "A script for making .gif avatars from video files")
+parser = argparse.ArgumentParser(description="A script for making .gif avatars from video files")
 
 # File
 parser.add_argument("--file", "--f",
-        required = True, type = str, help = 'The file you want to operate on.')
+                    required=True, type=str, help='The file you want to operate on.')
 
 # Mode
 parser.add_argument("--mode", "--m",
-        choices = ["auto", "mp4", "cut", "crop", "resize", "gif"],
-        default = "auto", type = str, help = "Choose the mode.")
+                    choices=["auto", "mp4", "cut", "crop", "resize", "gif"],
+                    default="auto", type=str, help="Choose the mode.")
 
 # Cut timestamp and duration
 parser.add_argument("--timestamp", "--time", "--t",
-        default = "00:00:00.0", type = str, help = 'The starting timestamp for mode "cut". hh:mm:ss.ds')
+                    default="00:00:00.0", type=str, help='The starting timestamp for mode "cut". hh:mm:ss.ds')
 parser.add_argument("--duration", "--dur", "--d",
-        default = "00:00:00.0", type = str, help = 'The duration for mode "crop". hh:mm:ss.ds')
-
+                    default="00:00:00.0", type=str, help='The duration for mode "crop". hh:mm:ss.ds')
 
 # Crop coordinates and resolution
 parser.add_argument("--startx", "--x",
-        default = 0, type = int, help = 'The starting x coordinate for mode "crop".')
+                    default=0, type=int, help='The starting x coordinate for mode "crop".')
 parser.add_argument("--starty", "--y",
-        default = 0, type = int, help = 'The starting y coordinate for mode "crop".')
+                    default=0, type=int, help='The starting y coordinate for mode "crop".')
 parser.add_argument("--resolution", "--res", "--r",
-        default = 1, type = int, help = '''The resolution for modes "crop" and "resize".
+                    default=1, type=int, help='''The resolution for modes "crop" and "resize".
                                             It\'s a square, so 1 number is enough''')
 
 args = parser.parse_args()
@@ -44,18 +43,21 @@ res = args.resolution
 
 filename, filetype = os.path.splitext(file)
 
+
 # Functions
 def commandLine(command):
-    process = subprocess.Popen(command, stdout = subprocess.PIPE)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE)
     for line in process.stdout:
         print(line)
     process.wait()
     print(process.returncode)
 
+
 def askConfirmation():
     answer = input("##### File not .mp4, continue anyways? [y/N]: ")
     if answer != 'y' and answer != 'Y':
         return False
+
 
 def makemp4(fname, ftype):
     if ftype != ".mkv" and ftype != ".mp4":
@@ -76,6 +78,7 @@ def makemp4(fname, ftype):
         print("##### Input file already .mp4, exiting...")
         return
 
+
 def cutVideo(fname, ftype, start, dur):
     if ftype != ".mp4":
         if not askConfirmation():
@@ -85,15 +88,17 @@ def cutVideo(fname, ftype, start, dur):
         commandLine(ffmpeg)
         print("##### Video cut")
 
+
 def cropVideo(fname, ftype, x, y, reso):
     if ftype != ".mp4":
         if not askConfirmation():
             return
     else:
         ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-filter:v', f'crop={reso}:{reso}:{x}:{y}',
-                f'{fname}-crop.mp4']
+                  f'{fname}-crop.mp4']
         commandLine(ffmpeg)
         print("##### Video cropped")
+
 
 def resizeVideo(fname, ftype, reso):
     if ftype != ".mp4":
@@ -101,9 +106,10 @@ def resizeVideo(fname, ftype, reso):
             return
     else:
         ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-vf', f'scale={reso}x{reso}:flags=lanczos',
-                f'{fname}-resize.mp4']
+                  f'{fname}-resize.mp4']
         commandLine(ffmpeg)
         print("##### Video resized")
+
 
 def makeGif(fname, ftype):
     if ftype == ".gif":
@@ -114,12 +120,12 @@ def makeGif(fname, ftype):
             return
     else:
         ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-vf', 'split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
-                '-loop', '0', f'{fname}.gif']
+                  '-loop', '0', f'{fname}.gif']
         commandLine(ffmpeg)
         print(f"##### {fname}{ftype} ready")
 
-def autoMode(fname, ftype):
 
+def autoMode(fname, ftype):
     files_to_cleanup = []
 
     begin = input(f'##### File {fname}{ftype} selected. Continue? [Y/n]: ')
@@ -137,9 +143,9 @@ def autoMode(fname, ftype):
     print(f'##### File {fname}{ftype} selected')
 
     start_time = input("##### At what timestamp do you want to start the gif [hh:mm:ss.ds]: ")
-    duration = input("##### How long do you want the gif to be [hh:mm:ss.ds]: ")
+    clip_duration = input("##### How long do you want the gif to be [hh:mm:ss.ds]: ")
 
-    cutVideo(fname, ftype, start_time, duration)
+    cutVideo(fname, ftype, start_time, clip_duration)
     fname = f'{fname}-cut'
     files_to_cleanup.append(f'{fname}{ftype}')
 
@@ -187,6 +193,7 @@ def autoMode(fname, ftype):
     else:
         print("##### No files removed")
 
+
 # if elif else to choose the right function for the mode
 if mode == 'mp4':
     makemp4(filename, filetype)
@@ -200,4 +207,3 @@ elif mode == 'gif':
     makeGif(filename, filetype)
 else:
     autoMode(filename, filetype)
-
