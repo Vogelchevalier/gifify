@@ -8,7 +8,6 @@
 import argparse
 import os
 import subprocess
-import platform
 
 parser = argparse.ArgumentParser(description="A script for making .gif avatars from video files")
 
@@ -60,7 +59,9 @@ def commandLine(command):
 
 def askConfirmation():
     answer = input("##### File not .mp4, continue anyways? [y/N]: ")
-    if answer != 'y' and answer != 'Y':
+    if answer == 'y' or answer == 'Y':
+        return True
+    else:
         return False
 
 
@@ -88,32 +89,32 @@ def cutVideo(fname, ftype, start, dur):
     if ftype != ".mp4":
         if not askConfirmation():
             return
-    else:
-        ffmpeg = ['ffmpeg', '-ss', start, '-i', f'{fname}{ftype}', '-c', 'copy', '-t', dur, f'{fname}-cut.mp4']
-        commandLine(ffmpeg)
-        print("##### Video cut")
+
+    ffmpeg = ['ffmpeg', '-ss', start, '-i', f'{fname}{ftype}', '-c', 'copy', '-t', dur, f'{fname}-cut{ftype}']
+    commandLine(ffmpeg)
+    print("##### Video cut")
 
 
 def cropVideo(fname, ftype, x, y, reso):
     if ftype != ".mp4":
         if not askConfirmation():
             return
-    else:
-        ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-filter:v', f'crop={reso}:{reso}:{x}:{y}',
-                  f'{fname}-crop.mp4']
-        commandLine(ffmpeg)
-        print("##### Video cropped")
+
+    ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-filter:v', f'crop={reso}:{reso}:{x}:{y}',
+              f'{fname}-crop{ftype}']
+    commandLine(ffmpeg)
+    print("##### Video cropped")
 
 
 def resizeVideo(fname, ftype, reso):
     if ftype != ".mp4":
         if not askConfirmation():
             return
-    else:
-        ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-vf', f'scale={reso}x{reso}:flags=lanczos',
-                  f'{fname}-resize.mp4']
-        commandLine(ffmpeg)
-        print("##### Video resized")
+
+    ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-vf', f'scale={reso}x{reso}:flags=lanczos',
+              f'{fname}-resize{ftype}']
+    commandLine(ffmpeg)
+    print("##### Video resized")
 
 
 def makeGif(fname, ftype):
@@ -123,11 +124,12 @@ def makeGif(fname, ftype):
     elif ftype != ".mp4":
         if not askConfirmation():
             return
-    else:
-        ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-vf', 'split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse',
-                  '-loop', '0', f'{fname}.gif']
-        commandLine(ffmpeg)
-        print(f"##### {fname}{ftype} ready")
+
+    ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-lavfi',
+              'palettegen=stats_mode=single[pal],[0:v][pal]paletteuse=new=1',
+              '-loop', '0', f'{fname}.gif']
+    commandLine(ffmpeg)
+    print(f"##### {fname}{ftype} ready")
 
 
 def autoMode(fname, ftype):
