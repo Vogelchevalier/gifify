@@ -59,16 +59,13 @@ def commandLine(command):
 
 def askConfirmation():
     answer = input("##### File not .mp4, continue anyways? [y/N]: ")
-    if answer == 'y' or answer == 'Y':
-        return True
-    else:
-        return False
+    return True if answer.lower() == 'y' else False
 
 
 def makemp4(fname, ftype):
     if ftype != ".mkv" and ftype != ".mp4":
         answer = input("##### File not .mkv, continue anyways? [y/N]: ")
-        if answer != 'y' and answer != 'Y':
+        if answer.lower() != 'y':
             return
         else:
             ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-an', f'{fname}.mp4']
@@ -137,7 +134,7 @@ def autoMode(fname, ftype):
 
     begin = input(f'##### File {fname}{ftype} selected. Continue? [Y/n]: ')
 
-    if begin == "n" or begin == "N":
+    if begin.lower() == "n":
         return
 
     if ftype != ".mp4":
@@ -189,7 +186,7 @@ def autoMode(fname, ftype):
 
     cleanup = input("##### Clean up extra files? Leaves the original video and the gif. [y/N]: ")
 
-    if cleanup == "y" or cleanup == "Y":
+    if cleanup.lower() == "y":
         for i in range(len(files_to_cleanup)):
             os.remove(files_to_cleanup[i])
             print(f'##### Removed {files_to_cleanup[i]}')
