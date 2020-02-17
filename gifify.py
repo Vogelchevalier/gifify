@@ -36,7 +36,6 @@ parser.add_argument("--resolution", "--res", "--r",
                                             It\'s a square, so 1 number is enough''')
 
 args = parser.parse_args()
-
 file = args.file
 mode = args.mode
 timestamp = args.timestamp
@@ -44,11 +43,11 @@ duration = args.duration
 startx = args.startx
 starty = args.starty
 res = args.resolution
-
 filename, filetype = os.path.splitext(file)
+mp4_confirmation = "##### File not .mp4, continue anyways? [y/N]: "
+mkv_confirmation = "##### File not .mkv, continue anyways? [y/N]: "
 
 
-# Functions
 def commandLine(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE)
     for line in process.stdout:
@@ -57,23 +56,20 @@ def commandLine(command):
     print(process.returncode)
 
 
-def askConfirmation():
-    answer = input("##### File not .mp4, continue anyways? [y/N]: ")
-    return True if answer.lower() == 'y' else False
+def askConfirmation(message):
+    return input(message).lower() == 'y'
 
 
 def makemp4(fname, ftype):
     if ftype != ".mkv" and ftype != ".mp4":
-        answer = input("##### File not .mkv, continue anyways? [y/N]: ")
-        if answer.lower() != 'y':
+        if not askConfirmation(mkv_confirmation):
             return
-        else:
-            ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-an', f'{fname}.mp4']
-            commandLine(ffmpeg)
-            print(f"##### {fname}{ftype} ready")
-            return
+        
+        ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-an', f'{fname}.mp4']
+        commandLine(ffmpeg)
+        print(f"##### {fname}{ftype} ready")
 
-    if ftype != ".mp4":
+    elif ftype != ".mp4":
         ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-c', 'copy', '-an', f'{fname}.mp4']
         commandLine(ffmpeg)
         print(f"##### {fname}{ftype} ready")
@@ -84,7 +80,7 @@ def makemp4(fname, ftype):
 
 def cutVideo(fname, ftype, start, dur):
     if ftype != ".mp4":
-        if not askConfirmation():
+        if not askConfirmation(mp4_confirmation):
             return
 
     ffmpeg = ['ffmpeg', '-ss', start, '-i', f'{fname}{ftype}', '-c', 'copy', '-t', dur, f'{fname}-cut{ftype}']
@@ -94,7 +90,7 @@ def cutVideo(fname, ftype, start, dur):
 
 def cropVideo(fname, ftype, x, y, reso):
     if ftype != ".mp4":
-        if not askConfirmation():
+        if not askConfirmation(mp4_confirmation):
             return
 
     ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-filter:v', f'crop={reso}:{reso}:{x}:{y}',
@@ -105,7 +101,7 @@ def cropVideo(fname, ftype, x, y, reso):
 
 def resizeVideo(fname, ftype, reso):
     if ftype != ".mp4":
-        if not askConfirmation():
+        if not askConfirmation(mp4_confirmation):
             return
 
     ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-vf', f'scale={reso}x{reso}:flags=lanczos',
@@ -119,7 +115,7 @@ def makeGif(fname, ftype):
         print("##### Input file already .gif, exiting...")
         return
     elif ftype != ".mp4":
-        if not askConfirmation():
+        if not askConfirmation(mp4_confirmation):
             return
 
     ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-lavfi',
