@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# TODO: non-square rectangle support
+# TODO:
 #   better gif quality
 #   https://github.com/ImageOptim/gifski
 #   https://ffmpeg.org/ffmpeg-filters.html#paletteuse
@@ -31,9 +31,10 @@ parser.add_argument("--startx", "--x",
                     default=0, type=int, help='The starting x coordinate for mode "crop".')
 parser.add_argument("--starty", "--y",
                     default=0, type=int, help='The starting y coordinate for mode "crop".')
-parser.add_argument("--resolution", "--res", "--r",
-                    default=1, type=int, help='''The resolution for modes "crop" and "resize".
-                                            It\'s a square, so 1 number is enough''')
+parser.add_argument("--xresolution", "--xres", "--xr",
+                    default=1, type=int, help='The X resolution for modes "crop" and "resize".')
+parser.add_argument("--yresolution", "--yres", "--yr",
+                    default=1, type=int, help='The Y resolution for mode "crop"')
 
 args = parser.parse_args()
 file = args.file
@@ -42,7 +43,8 @@ timestamp = args.timestamp
 duration = args.duration
 startx = args.startx
 starty = args.starty
-res = args.resolution
+xres = args.xresolution
+yres = args.yresolution
 filename, filetype = os.path.splitext(file)
 mp4_confirmation = "##### File not .mp4, continue anyways? [y/N]: "
 mkv_confirmation = "##### File not .mkv, continue anyways? [y/N]: "
@@ -64,7 +66,7 @@ def makemp4(fname, ftype):
     if ftype != ".mkv" and ftype != ".mp4":
         if not askConfirmation(mkv_confirmation):
             return
-        
+
         ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-an', f'{fname}.mp4']
         commandLine(ffmpeg)
         print(f"##### {fname}{ftype} ready")
@@ -88,23 +90,26 @@ def cutVideo(fname, ftype, start, dur):
     print("##### Video cut")
 
 
-def cropVideo(fname, ftype, x, y, reso):
+def cropVideo(fname, ftype, x, y, xreso, yreso):
     if ftype != ".mp4":
         if not askConfirmation(mp4_confirmation):
             return
 
-    ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-filter:v', f'crop={reso}:{reso}:{x}:{y}',
+    if yreso == "":
+        yreso = xreso
+
+    ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-filter:v', f'crop={xreso}:{yreso}:{x}:{y}',
               f'{fname}-crop{ftype}']
     commandLine(ffmpeg)
     print("##### Video cropped")
 
 
-def resizeVideo(fname, ftype, reso):
+def resizeVideo(fname, ftype, xreso):
     if ftype != ".mp4":
         if not askConfirmation(mp4_confirmation):
             return
 
-    ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-vf', f'scale={reso}x{reso}:flags=lanczos',
+    ffmpeg = ['ffmpeg', '-i', f'{fname}{ftype}', '-vf', f'scale={xreso}:-1:flags=lanczos',
               f'{fname}-resize{ftype}']
     commandLine(ffmpeg)
     print("##### Video resized")
@@ -154,20 +159,22 @@ def autoMode(fname, ftype):
 
     x = input("##### X coordinate you want the area to start from: ")
     y = input("##### Y coordinate you want the area to start from: ")
-    reso = input("##### Length of the side of the square in pixels: ")
+    xreso = input("##### X length in pixels: ")
+    yreso = input("##### Y length in pixels. Leave empty (press enter) if same as X: ")
 
-    cropVideo(fname, ftype, x, y, reso)
+    cropVideo(fname, ftype, x, y, xreso, yreso)
     fname = f'{fname}-crop'
     files_to_cleanup.append(f'{fname}{ftype}')
 
     print("##### Resizing [ctrl + c to quit]")
     print(f'##### File {fname}{ftype} selected')
 
-    print("##### Length of the resized side of the square in pixels.")
-    resized_reso = input("##### Leave empty (press enter) for no resizing: ")
+    print("##### X length of the resized video")
+    print("##### Automatically sets Y to preserve aspect ratio")
+    resized_x_reso = input("##### Leave empty (press enter) for no resizing: ")
 
-    if resized_reso:
-        resizeVideo(fname, ftype, resized_reso)
+    if resized_x_reso:
+        resizeVideo(fname, ftype, resized_x_reso)
         fname = f'{fname}-resize'
         files_to_cleanup.append(f'{fname}{ftype}')
     else:
@@ -196,9 +203,9 @@ if mode == 'mp4':
 elif mode == 'cut':
     cutVideo(filename, filetype, timestamp, duration)
 elif mode == 'crop':
-    cropVideo(filename, filetype, startx, starty, res)
+    cropVideo(filename, filetype, startx, starty, xres, yres)
 elif mode == 'resize':
-    resizeVideo(filename, filetype, res)
+    resizeVideo(filename, filetype, xres)
 elif mode == 'gif':
     makeGif(filename, filetype)
 else:
